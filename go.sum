@@ -1,2 +1,6 @@
+github.com/spacemonkeygo/flagfile v0.0.0-20180426194429-0d750334dbb8 h1:igGPAk1IhuO3QcQTgVC+7ryzcc0S/GrJfyFMw2kiDpA=
+github.com/spacemonkeygo/flagfile v0.0.0-20180426194429-0d750334dbb8/go.mod h1:Sv7P/HGgCluSQraRbYxntA4oe016UX0ShVPQyc5nHbA=
 github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 h1:RC6RW7j+1+HkWaX/Yh71Ee5ZHaHYt7ZP4sQgUrm6cDU=
 github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572/go.mod h1:w0SWMsp6j9O/dk4/ZpIhL+3CkG8ofA2vuv7k+ltqUMc=
+golang.org/x/sys v0.0.0-20201110211018-35f3e6cf4a65 h1:Qo9oJ566/Sq7N4hrGftVXs8GI2CXBCuOd4S2wHE/e0M=
+golang.org/x/sys v0.0.0-20201110211018-35f3e6cf4a65/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
