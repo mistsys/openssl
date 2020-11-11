@@ -1,4 +1,4 @@
-module github.com/spacemonkeygo/openssl
+module github.com/mistsys/openssl
 
 go 1.15
 
