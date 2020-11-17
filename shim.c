@@ -768,3 +768,11 @@ long X_X509_get_version(const X509 *x) {
 int X_X509_set_version(X509 *x, long version) {
 	return X509_set_version(x, version);
 }
+
+int X_PKCS5_PBKDF2_HMAC_SHA1(const char *pass, int passlen, const unsigned char *salt, int saltlen, int iter, int keylen, unsigned char *out) {
+  return PKCS5_PBKDF2_HMAC_SHA1(pass, passlen, salt, saltlen, iter, keylen, out);
+}
+
+int X_PKCS5_PBKDF2_HMAC(const char *pass, int passlen, const unsigned char *salt, int saltlen, int iter, const EVP_MD *digest, int keylen, unsigned char *out) {
+  return PKCS5_PBKDF2_HMAC(pass, passlen, salt, saltlen, iter, digest, keylen, out);
+}
