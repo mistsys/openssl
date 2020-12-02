@@ -19,6 +19,7 @@ import "C"
 
 import (
 	"errors"
+	"fmt"
 	"runtime"
 	"unsafe"
 )
@@ -45,8 +46,14 @@ func NewHMACWithEngine(key []byte, digestAlgorithm EVP_MD, e *Engine) (*HMAC, er
 	if e != nil {
 		c_e = e.e
 	}
+
+	var keyPtr unsafe.Pointer
+	if key != nil {
+		keyPtr = unsafe.Pointer(&key[0])
+	}
+	fmt.Println(keyPtr, C.int(len(key)))
 	if rc := C.X_HMAC_Init_ex(h.ctx,
-		unsafe.Pointer(&key[0]),
+		keyPtr,
 		C.int(len(key)),
 		md,
 		c_e); rc != 1 {
