@@ -21,7 +21,7 @@ func NewSHA256Hash() (*SHA256Hash, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newDigestJob(*digest)
+	return newDigestJob(digest)
 }
 
 func SHA256(data []byte) (result [32]byte, err error) {

@@ -21,7 +21,7 @@ func NewMD5Hash() (*MD5Hash, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newDigestJob(*digest)
+	return newDigestJob(digest)
 }
 
 func MD5(data []byte) (result [16]byte, err error) {

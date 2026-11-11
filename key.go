@@ -177,10 +177,11 @@ func (key *pKey) SignPKCS1v15(digest *Digest, data []byte) ([]byte, error) {
 
 		return sig[:siglen], nil
 	} else {
-		job, err := newDigestJob(*digest)
+		job, err := newDigestJob(digest)
 		if err != nil {
 			return nil, err
 		}
+		defer job.Close()
 		if err = job.Update(data); err != nil {
 			return nil, err
 		}
@@ -218,10 +219,11 @@ func (key *pKey) VerifyPKCS1v15(digest *Digest, data, sig []byte) error {
 		return nil
 
 	} else {
-		job, err := newDigestJob(*digest)
+		job, err := newDigestJob(digest)
 		if err != nil {
 			return err
 		}
+		defer job.Close()
 		if err = job.Update(data); err != nil {
 			return err
 		}

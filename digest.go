@@ -39,18 +39,19 @@ type Digest struct {
 
 // GetSize gets the size of the digest
 func (d *Digest) GetSize() int {
+	defer runtime.KeepAlive(d)
 	return int(C.EVP_MD_get_size(d.ptr))
 }
 
 // digestJob represents a digest job
 type digestJob struct {
-	digest   Digest
+	digest   *Digest
 	ctx      *C.EVP_MD_CTX
 	finished bool
 }
 
 // newDigestJob creates a new digest job for the given digest
-func newDigestJob(digest Digest) (*digestJob, error) {
+func newDigestJob(digest *Digest) (*digestJob, error) {
 	ctx := C.EVP_MD_CTX_new()
 	if ctx == nil {
 		return nil, errorFromErrorQueue()
@@ -60,6 +61,7 @@ func newDigestJob(digest Digest) (*digestJob, error) {
 		j.Close()
 	})
 	if err := job.Reset(); err != nil {
+		job.Close()
 		return nil, err
 	}
 	return job, nil
@@ -67,6 +69,7 @@ func newDigestJob(digest Digest) (*digestJob, error) {
 
 // Reset initialises (and therefore resets) the digest
 func (d *digestJob) Reset() error {
+	defer runtime.KeepAlive(d)
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 	if int(C.EVP_DigestInit_ex(d.ctx, d.digest.ptr, nil)) != 1 {
@@ -85,6 +88,7 @@ func (d *digestJob) Close() {
 
 // Update updates a digest job
 func (d *digestJob) Update(data []byte) error {
+	defer runtime.KeepAlive(d)
 	if d.finished {
 		return ErrDigestFinalised
 	}
@@ -112,6 +116,7 @@ func (d *digestJob) Write(p []byte) (int, error) {
 
 // Final finalises the digest job and returns the digest sum
 func (d *digestJob) Final() ([]byte, error) {
+	defer runtime.KeepAlive(d)
 	d.finished = true
 	var finalWritten C.uint
 	result := make([]byte, d.digest.GetSize())
@@ -130,6 +135,8 @@ func (d *digestJob) Sum() ([]byte, error) {
 
 // SignFinal finalises the digest job, signs it with the given pkey and returns the signature
 func (d *digestJob) SignFinal(key *pKey) ([]byte, error) {
+	defer runtime.KeepAlive(d)
+	defer runtime.KeepAlive(key)
 	d.finished = true
 	var finalWritten C.uint
 	result := make([]byte, C.EVP_PKEY_get_size(key.key))
@@ -143,6 +150,8 @@ func (d *digestJob) SignFinal(key *pKey) ([]byte, error) {
 
 // VerifyFinal finalises the digest job, verifies it with the provided signature/pkey
 func (d *digestJob) VerifyFinal(signature []byte, key *pKey) error {
+	defer runtime.KeepAlive(d)
+	defer runtime.KeepAlive(key)
 	d.finished = true
 	if C.EVP_VerifyFinal(
 		d.ctx, (*C.uchar)(unsafe.Pointer(&signature[0])), C.uint(len(signature)), key.key,
@@ -181,8 +190,11 @@ func GetDigestByName(algorithm string, allowNonFIPS bool) (*Digest, error) {
 		return nil, ErrUnknownDigest
 	}
 
-	// we can consider digests to use static mem; don't need to free
-	return &Digest{name: algorithm, ptr: digest}, nil
+	result := &Digest{name: algorithm, ptr: digest}
+	runtime.SetFinalizer(result, func(d *Digest) {
+		C.EVP_MD_free(d.ptr)
+	})
+	return result, nil
 }
 
 // GetDigestByNid returns the Digest with the NID or nil and an error if the

@@ -95,6 +95,7 @@ func NewHMAC(algorithm string, key []byte, allowNonFIPS bool) (*HMAC, error) {
 	}
 	params, err := algorithmToParams(algorithm)
 	if err != nil {
+		C.EVP_MAC_CTX_free(ctx)
 		return nil, err
 	}
 	hmac := &HMAC{ctx, mac, params, key, false}
@@ -107,11 +108,18 @@ func NewHMAC(algorithm string, key []byte, allowNonFIPS bool) (*HMAC, error) {
 
 // Reset initialises (and therefore resets) the HMAC job
 func (h *HMAC) Reset() error {
+	defer runtime.KeepAlive(h)
+	var emptyKey C.uchar
+	key := &emptyKey
+	if len(h.key) != 0 {
+		key = (*C.uchar)(unsafe.Pointer(&h.key[0]))
+	}
 	if int(C.EVP_MAC_init(
-		h.ctx, (*C.uchar)(unsafe.Pointer(&h.key[0])), C.size_t(len(h.key)), h.params.param,
+		h.ctx, key, C.size_t(len(h.key)), h.params.param,
 	)) != 1 {
 		return errorFromErrorQueue()
 	}
+	h.finished = false
 	return nil
 }
 

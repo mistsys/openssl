@@ -21,7 +21,7 @@ func NewMD4Hash(allowNonFIPS bool) (*MD4Hash, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newDigestJob(*digest)
+	return newDigestJob(digest)
 }
 
 func MD4(data []byte, allowNonFIPS bool) (result [16]byte, err error) {
