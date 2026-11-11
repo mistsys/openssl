@@ -110,6 +110,14 @@ func TestCertificateVerify(t *testing.T) {
 			o.Intermediates = []*Certificate{intermediate, root}
 		}, code: SelfSignedCertInChain},
 		{name: "expired at explicit time", cert: server, change: func(o *CertificateVerifyOptions) { o.CurrentTime = now.Add(25 * time.Hour) }, code: CertHasExpired},
+		{name: "external time validation", cert: server, change: func(o *CertificateVerifyOptions) {
+			o.CurrentTime = now.Add(25 * time.Hour)
+			o.SkipTimeChecks = true
+		}},
+		{name: "external time validation retains signature checks", cert: badSignature, change: func(o *CertificateVerifyOptions) {
+			o.CurrentTime = now.Add(25 * time.Hour)
+			o.SkipTimeChecks = true
+		}, code: CertSignatureFailure},
 		{name: "not yet valid at explicit time", cert: server, change: func(o *CertificateVerifyOptions) { o.CurrentTime = now.Add(-2 * time.Hour) }, code: CertNotYetValid},
 		{name: "invalid signature", cert: badSignature, code: CertSignatureFailure},
 		{name: "issuer is not a CA", cert: invalidChain, change: func(o *CertificateVerifyOptions) { o.Intermediates = []*Certificate{notCA} }, code: InvalidCa},

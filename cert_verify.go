@@ -55,6 +55,9 @@ type CertificateVerifyOptions struct {
 	// PartialChain permits an explicitly trusted non-self-signed certificate
 	// to terminate the chain.
 	PartialChain bool
+	// SkipTimeChecks delegates validity checking to the caller. The caller must
+	// validate every certificate in the path, including the trust anchor.
+	SkipTimeChecks bool
 	// CurrentTime is required, is evaluated to whole Unix seconds, and applies
 	// to every certificate in the chain. A zero time is rejected.
 	CurrentTime time.Time
@@ -154,7 +157,13 @@ func (c *Certificate) Verify(opts CertificateVerifyOptions) error {
 		return fmt.Errorf("openssl: setting verification purpose: %w", errorFromErrorQueue())
 	}
 	param := C.X509_STORE_CTX_get0_param(ctx)
-	C.X509_VERIFY_PARAM_set_time(param, when)
+	if opts.SkipTimeChecks {
+		if C.X509_VERIFY_PARAM_set_flags(param, C.X509_V_FLAG_NO_CHECK_TIME) != 1 {
+			return fmt.Errorf("openssl: disabling certificate time verification: %w", errorFromErrorQueue())
+		}
+	} else {
+		C.X509_VERIFY_PARAM_set_time(param, when)
+	}
 	if opts.PartialChain && C.X509_VERIFY_PARAM_set_flags(param, C.X509_V_FLAG_PARTIAL_CHAIN) != 1 {
 		return fmt.Errorf("openssl: setting partial-chain verification: %w", errorFromErrorQueue())
 	}

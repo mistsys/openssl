@@ -34,6 +34,12 @@ precision. Select `CertificatePurposeSSLClient` for client authentication,
 `CertificatePurposeSSLServer` for server authentication, or explicitly select
 `CertificatePurposeAny` to omit the TLS extended-key-usage check.
 
+`SkipTimeChecks` opts out of OpenSSL's validity checks when the caller enforces
+validity externally, for example to preserve different time-boundary semantics.
+The caller must check **every certificate in the path, including the trust
+anchor**. `CurrentTime` remains required but is not applied in this mode.
+Signature, issuer, purpose, and identity checks remain enabled.
+
 `DNSName` is optional and accepts DNS names or unbracketed IPv4/IPv6 literals
 (not URLs, ports, or IPv6 zone identifiers). DNS verification requires a SAN;
 there is no common-name fallback. OpenSSL wildcard matching is used, with
