@@ -108,6 +108,26 @@ const EVP_MD *X_EVP_sha() {
 	return NULL;
 }
 
+EVP_MD_CTX *X_EVP_MD_CTX_new(void) {
+	return EVP_MD_CTX_new();
+}
+
+void X_EVP_MD_CTX_free(EVP_MD_CTX *ctx) {
+	EVP_MD_CTX_free(ctx);
+}
+
+int X_EVP_DigestInit_ex(EVP_MD_CTX *ctx, const EVP_MD *type, ENGINE *impl) {
+	return EVP_DigestInit_ex(ctx, type, impl);
+}
+
+int X_EVP_DigestUpdate(EVP_MD_CTX *ctx, const void *data, size_t count) {
+	return EVP_DigestUpdate(ctx, data, count);
+}
+
+int X_EVP_DigestFinal_ex(EVP_MD_CTX *ctx, unsigned char *md, unsigned int *size) {
+	return EVP_DigestFinal_ex(ctx, md, size);
+}
+
 int X_SSL_CTX_set_min_proto_version(SSL_CTX *ctx, long version) {
 	return SSL_CTX_set_min_proto_version(ctx, version);
 }

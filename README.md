@@ -8,6 +8,28 @@ Please see http://godoc.org/github.com/pexip/go-openssl for more info
 
 ---
 
+### Cryptographic operations
+
+The package provides OpenSSL-backed SHA-256 (`SHA256`), HMAC (`NewHMAC`),
+RS256 primitives (`SignPKCS1v15` and `VerifyPKCS1v15` with a SHA-256 digest),
+RSA key generation (`GenerateRSAKeyWithExponent`), and TLS connections.
+`RandomBytes` fills a caller-provided buffer using OpenSSL's
+default-context DRBG. `EncryptRSAOAEPSHA256` and `DecryptRSAOAEPSHA256` use
+RSA-OAEP with SHA-256, MGF1-SHA-256 and an empty label. The latter is for
+software-accessible private keys; TPM-resident decryption remains a TPM
+operation unless an appropriate provider is configured.
+
+`NewCertificateTemplate` creates an unsigned certificate for callers to
+configure and sign. `Certificate.SetValidity` and `Certificate.Validity` set
+and read its absolute validity interval.
+
+These APIs use the OpenSSL default library context and its configured
+providers and properties. Their availability alone does not establish FIPS
+validation or approved operation. Applications must configure and enforce the
+appropriate provider policy and must verify the certificate chain and peer
+identity before trusting a TLS connection. These APIs do not themselves
+enforce FIPS mode.
+
 ### License
 
 Copyright (C) 2017. See AUTHORS.
