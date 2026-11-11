@@ -52,6 +52,9 @@ const (
 type CertificateVerifyOptions struct {
 	Roots         []*Certificate
 	Intermediates []*Certificate
+	// PartialChain permits an explicitly trusted non-self-signed certificate
+	// to terminate the chain.
+	PartialChain bool
 	// CurrentTime is required, is evaluated to whole Unix seconds, and applies
 	// to every certificate in the chain. A zero time is rejected.
 	CurrentTime time.Time
@@ -152,6 +155,9 @@ func (c *Certificate) Verify(opts CertificateVerifyOptions) error {
 	}
 	param := C.X509_STORE_CTX_get0_param(ctx)
 	C.X509_VERIFY_PARAM_set_time(param, when)
+	if opts.PartialChain && C.X509_VERIFY_PARAM_set_flags(param, C.X509_V_FLAG_PARTIAL_CHAIN) != 1 {
+		return fmt.Errorf("openssl: setting partial-chain verification: %w", errorFromErrorQueue())
+	}
 	if opts.DNSName != "" {
 		identity := C.CString(opts.DNSName)
 		defer C.free(unsafe.Pointer(identity))

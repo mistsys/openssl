@@ -96,6 +96,15 @@ func TestCertificateVerify(t *testing.T) {
 		{name: "no implicit system roots", cert: server, change: func(o *CertificateVerifyOptions) { o.Roots = nil }, code: UnableToGetIssuerCertLocally},
 		{name: "unrelated trust", cert: server, change: func(o *CertificateVerifyOptions) { o.Roots = []*Certificate{otherRoot} }, code: UnableToGetIssuerCertLocally},
 		{name: "missing intermediate", cert: server, change: func(o *CertificateVerifyOptions) { o.Intermediates = nil }, code: UnableToGetIssuerCertLocally},
+		{name: "trusted intermediate without partial chain", cert: server, change: func(o *CertificateVerifyOptions) {
+			o.Roots = []*Certificate{intermediate}
+			o.Intermediates = nil
+		}, code: UnableToGetIssuerCert},
+		{name: "trusted intermediate with partial chain", cert: server, change: func(o *CertificateVerifyOptions) {
+			o.Roots = []*Certificate{intermediate}
+			o.Intermediates = nil
+			o.PartialChain = true
+		}},
 		{name: "intermediates are not trusted", cert: server, change: func(o *CertificateVerifyOptions) {
 			o.Roots = nil
 			o.Intermediates = []*Certificate{intermediate, root}

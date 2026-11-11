@@ -25,6 +25,9 @@ rejects trailing data, including concatenated certificates.
 Roots are the **only** trust anchors; an empty root set fails closed.
 Intermediates are untrusted candidates. The call creates a fresh store and
 context; it does not change existing certificate stores or TLS contexts.
+`PartialChain` may be enabled to terminate a chain at an explicitly trusted
+non-self-signed certificate. TLS stores provide the same opt-in through
+`CertificateStore.SetPartialChain`.
 
 `CurrentTime` and `Purpose` are required. Time is checked at whole Unix-second
 precision. Select `CertificatePurposeSSLClient` for client authentication,

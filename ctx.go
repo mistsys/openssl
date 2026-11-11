@@ -205,6 +205,21 @@ type CertificateStore struct {
 	certs []*Certificate
 }
 
+// SetPartialChain permits explicitly trusted intermediate certificates to
+// terminate certificate chains verified with this store.
+func (s *CertificateStore) SetPartialChain() error {
+	if s == nil || s.store == nil {
+		return errors.New("certificate store is nil")
+	}
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+	defer runtime.KeepAlive(s)
+	if C.X509_STORE_set_flags(s.store, C.X509_V_FLAG_PARTIAL_CHAIN) != 1 {
+		return errorFromErrorQueue()
+	}
+	return nil
+}
+
 // NewCertificateStore Allocate a new, empty CertificateStore
 func NewCertificateStore() (*CertificateStore, error) {
 	s := C.X509_STORE_new()
